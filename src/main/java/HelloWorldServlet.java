@@ -16,15 +16,14 @@ public class HelloWorldServlet extends HttpServlet {
             count = Integer.parseInt((String) counter);
             count++;
         } else {
-            count = 1
+            count = 1;
         }
 
         req.setAttribute("counter", count);
 
-        response.setContentType("text/html");
-        PrintWriter out = response.getWriter();
-
-
+        res.setContentType("text/html");
+        PrintWriter out = res.getWriter();
+        out.println("<h1>Hello, World!</h1>");
 
     }
 }
