@@ -6,7 +6,7 @@
             <a class="navbar-brand" href="/ads">Adlister</a>
         </div>
         <ul class="nav navbar-nav navbar-right">
-            <li><a href="/ads/index.jsp">Ads</a></li>
+            <li><a href="/ads">Ads</a></li>
             <c:choose>
                 <c:when test='${sessionScope.containsKey("user")}'>
                     <li><a href="/logout">Logout</a></li>
