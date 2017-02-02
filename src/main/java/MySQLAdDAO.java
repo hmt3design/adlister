@@ -10,49 +10,87 @@ import java.util.List;
 public class MySQLAdDAO implements Ads {
     private Connection connection;
 
-    public MySQLAdDAO(Config config) throws SQLException {
-        DriverManager.registerDriver(new Driver());
-        Connection connection = DriverManager.getConnection(
-                config.getUrl(),
-                config.getUsername(),
-                config.getPassword()
-        );
+    public MySQLAdDAO() {
+        Driver driver;
+
+        try {
+            driver = new Driver();
+            DriverManager.registerDriver(new Driver());
+            connection = DriverManager.getConnection(
+                    Config.url,
+                    Config.username,
+                    Config.password
+            );
+
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     // get a list of all the ads
-    public List<Ad> all() throws SQLException {
-    // select * from ads
+    @Override
+    public List<Ad> all() { // checked exception
+        // select * from ads
 
-        String selectQuery = "Select * from ads";
+        String selectQuery = "SELECT * FROM ads";
         // create a new list
         List<Ad> ads = new ArrayList<>();
+        try {
+            Statement statement = connection.createStatement();
+            ResultSet resultSet = statement.executeQuery(selectQuery);
+            while (resultSet.next()) {
+                // add a new Ad object to the ads list inside this loop
+                //use the resultSet.getLong(), getString. mehdods to grab values from the row (in the db)
+                long id = resultSet.getLong("id");
+                long userId = resultSet.getLong("user_id");
+                String title = resultSet.getString("title");
+                String description = resultSet.getString("description");
 
-        Statement statement = connection.createStatement();
-        ResultSet resultSet = statement.executeQuery(selectQuery);
-        while (resultSet.next()) {
-            // add a new Ad object to the ads list inside this loop
-            //use the resultSet.getLong(), getString. mehdods to grab values from the row (in the db)
-            long id = resultSet.getLong("id");
-            long userId = resultSet.getLong("user_id");
-            String title = resultSet.getString("title");
-            String description = resultSet.getString("description");
+                //use those values to instantiate a new Ad Object, passing them to the constructor
+                Ad ad = new Ad(id, userId, title, description);
 
-            //use those values to instantiate a new Ad Object, passing them to the constructor
-            Ad ad = new Ad(id, userId, title, description);
+                // add that new Ad object to the Ads arrayList
+                ads.add(ad);
+            }
 
-            // add that new Ad object to the Ads arrayList
-            ads.add(ad);
+        } catch (SQLException e) {
+            // re-throw an exception
+            // wrapping the exception
+            throw new RuntimeException(e);
         }
-            return ads;
+
+        return ads;
     }
 
     // insert a new ad and return the new ad's id
-    public Long insert(Ad ad) {
-
-        return null;
+    public long insert(Ad ad) {
+        String sql = "INSERT INTO ads (user_id, title, description)" + " VALUES (" + ad.getUserId() + ", '" + ad.getTitle() + "', '" + ad.getDescription() + "')";
+        try {
+            Statement statement = connection.createStatement();
+            statement.executeUpdate(sql, Statement.RETURN_GENERATED_KEYS);
+            ResultSet generatedKeys = statement.getGeneratedKeys();
+            generatedKeys.next();
+            long id = generatedKeys.getLong(1);
+            ad.setId(id);
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+        return 0;
     }
 
-    public Ad find(int id){
+    public Ad find(long id) {
+        String sql = "SELECT * FROM ads WHERE id = " + id;
+        try {
+            Statement statement = connection.createStatement();
+            ResultSet resultSet = statement.executeQuery(sql);
+            if (resultSet.next()) {
+                String title = resultSet.getString("title");
+                String description = resultSet.getString("description");
+                return new Ad(id, title, description);
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
 
         return null;
     }
