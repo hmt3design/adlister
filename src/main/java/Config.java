@@ -3,6 +3,6 @@
  */
 public class Config {
     public static final String url = "jdbc:mysql://localhost/adlister_db";
-    public static final String username = "root";
+    public static final String username = "adlister_user";
     public static final  String password = "codeup";
 }

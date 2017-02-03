@@ -64,10 +64,14 @@ public class MySQLAdDAO implements Ads {
 
     // insert a new ad and return the new ad's id
     public long insert(Ad ad) {
-        String sql = "INSERT INTO ads (user_id, title, description)" + " VALUES (" + ad.getUserId() + ", '" + ad.getTitle() + "', '" + ad.getDescription() + "')";
+        String sql = "INSERT INTO ads (user_id, title, description)" + "VALUES ( ?, ?, ?)";
+
         try {
-            Statement statement = connection.createStatement();
-            statement.executeUpdate(sql, Statement.RETURN_GENERATED_KEYS);
+            PreparedStatement statement = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
+            statement.setLong(1, ad.getUserId());
+            statement.setString(2, ad.getTitle());
+            statement.setString(3, ad.getDescription());
+            statement.executeUpdate();
             ResultSet generatedKeys = statement.getGeneratedKeys();
             generatedKeys.next();
             long id = generatedKeys.getLong(1);
@@ -81,7 +85,8 @@ public class MySQLAdDAO implements Ads {
     public Ad find(long id) {
         String sql = "SELECT * FROM ads WHERE id = " + id;
         try {
-            Statement statement = connection.createStatement();
+            PreparedStatement statement = connection.prepareStatement(sql);
+            statement.setLong(1, id);
             ResultSet resultSet = statement.executeQuery(sql);
             if (resultSet.next()) {
                 String title = resultSet.getString("title");

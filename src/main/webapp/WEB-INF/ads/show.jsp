@@ -1,3 +1,4 @@
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%--
   Created by IntelliJ IDEA.
   User: Harry
@@ -13,7 +14,7 @@
     </jsp:include>
 </head>
 <body>
-<h1> ${ad.title}</h1>
-<p>${ad.description}</p>
+        <h1><c:out value="${ad.title}" /></h1>
+        <p><c:out value="v${ad.title}" /></p>
 </body>
 </html>
