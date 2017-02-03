@@ -29,13 +29,14 @@ public class MySQLAdsDao implements Ads {
     }
 
     // list the ads
+    // this has a SELECT statement, but not a WHICH statement, so it does NOT require the ProtectedStatement security functions
     @Override
     public List<Ad> all() {
         // primitive statement in which a single method is applied to a target and a set of arguments
-        Statement stmt = null;
+        Statement statement = null;
         try {
-            stmt = connection.createStatement();
-            ResultSet rs = stmt.executeQuery("SELECT * FROM ads");
+            statement = connection.createStatement();
+            ResultSet rs = statement.executeQuery("SELECT * FROM ads");
             return createAdsFromResults(rs);
         } catch (SQLException e) {
             throw new RuntimeException("Error retrieving all ads.", e);
@@ -43,15 +44,17 @@ public class MySQLAdsDao implements Ads {
     }
 
     // insert the new ad
+    // this has INSERT INTO, so it requires the PreparedStatement security functions
     @Override
     public Long insert(Ad ad) {
         try {
-            PreparedStatement stmt = connection.prepareStatement(createInsertQuery(), Statement.RETURN_GENERATED_KEYS);
-            stmt.setLong(1, ad.getUserId());
-            stmt.setString(2, ad.getTitle());
-            stmt.setString(3, ad.getDescription());
-            stmt.executeUpdate();
-            ResultSet rs = stmt.getGeneratedKeys();
+            PreparedStatement statement = connection.prepareStatement(createInsertQuery(), Statement.RETURN_GENERATED_KEYS);
+            // binding
+            statement.setLong(1, ad.getUserId());
+            statement.setString(2, ad.getTitle());
+            statement.setString(3, ad.getDescription());
+            statement.executeUpdate();
+            ResultSet rs = statement.getGeneratedKeys();
             rs.next();
             return rs.getLong(1);
         } catch (SQLException e) {
